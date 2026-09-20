@@ -1,0 +1,63 @@
+@import "tailwindcss";
+
+@theme {
+  --color-bg-primary: #07111D;
+  --color-bg-secondary: #0B1725;
+  --color-bg-panel: #0D1B2A;
+  --color-bg-panel-elevated: #101F30;
+  --color-border-color: #1B344B;
+  --color-text-primary: #F4F7FA;
+  --color-text-secondary: #8FA4B8;
+  --color-text-muted: #60758A;
+  --color-accent-primary: #22AFFF;
+  --color-status-healthy: #22D88A;
+  --color-status-advisory: #F4B942;
+  --color-status-warning: #FF8A3D;
+  --color-status-critical: #FF4D4D;
+  --color-status-unknown: #718096;
+}
+
+:root {
+  --bg-primary: #07111D;
+  --bg-secondary: #0B1725;
+  --bg-panel: #0D1B2A;
+  --bg-panel-elevated: #101F30;
+  --border-color: #1B344B;
+  --text-primary: #F4F7FA;
+  --text-secondary: #8FA4B8;
+  --text-muted: #60758A;
+  --accent-primary: #22AFFF;
+  --status-healthy: #22D88A;
+  --status-advisory: #F4B942;
+  --status-warning: #FF8A3D;
+  --status-critical: #FF4D4D;
+  --status-unknown: #718096;
+}
+
+html, body {
+  background-color: #07111D;
+  color: #F4F7FA;
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden;
+  min-height: 100vh;
+}
+
+/* Engineering Workstation Custom Scrollbars */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: #07111D;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #1B344B;
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #22AFFF;
+}

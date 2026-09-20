@@ -1,0 +1,18 @@
+mission:
+  id: "MIS-HIGH-ALT-02"
+  name: "High-Altitude Reconnaissance (25,000 ft)"
+  description: "Thin air stress profile testing turbocharging limits, air mass flow decrease, and cooling performance"
+  target_altitude_m: 7620.0   # ~25,000 ft
+  duration_minutes: 240.0     # 4 hours
+  ambient_temperature_c: 15.0
+  ambient_pressure_kpa: 101.3
+  
+  waypoints:
+    - [0.0, 0.0, 0.0, "START"]
+    - [10.0, 0.0, 35.0, "WARM_UP"]
+    - [15.0, 50.0, 100.0, "TAKEOFF"]
+    - [50.0, 4500.0, 90.0, "CLIMB"]
+    - [80.0, 7620.0, 85.0, "CLIMB"]
+    - [180.0, 7620.0, 75.0, "CRUISE"]
+    - [210.0, 3000.0, 40.0, "DESCENT"]
+    - [240.0, 0.0, 20.0, "LANDING"]

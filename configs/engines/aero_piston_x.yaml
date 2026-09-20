@@ -1,0 +1,78 @@
+engine:
+  name: "AeroPiston-4X"
+  type: "aero-piston-turbocharged"
+  cylinders: 4
+  displacement_cc: 1352.0
+  rated_power_hp: 115.0
+  compression_ratio: 9.0
+
+  operating_limits:
+    rpm:
+      min_idle: 1400.0
+      nominal_cruise_min: 2200.0
+      nominal_cruise_max: 2650.0
+      max_continuous: 2800.0
+      redline: 3200.0
+    cht:
+      min_operating: 60.0
+      nominal_min: 135.0
+      nominal_max: 185.0
+      warning_threshold: 205.0
+      redline: 230.0
+    egt:
+      nominal_min: 650.0
+      nominal_max: 760.0
+      warning_threshold: 820.0
+      redline: 880.0
+    oil_pressure:
+      critical_low: 1.5
+      warning_low: 2.5
+      nominal_min: 3.8
+      nominal_max: 5.2
+      max_limit: 7.0
+    oil_temperature:
+      min_operating: 50.0
+      nominal_min: 80.0
+      nominal_max: 105.0
+      warning_threshold: 120.0
+      redline: 135.0
+    fuel_flow:
+      min_idle: 3.5
+      nominal_cruise: 18.5
+      max_takeoff: 32.0
+    vibration:
+      nominal_max: 0.35
+      warning_threshold: 0.65
+      critical_limit: 1.20
+    battery_voltage:
+      min_limit: 24.0
+      nominal: 28.0
+      max_limit: 30.5
+    alternator_current:
+      min_limit: 2.0
+      nominal: 15.0
+      max_limit: 45.0
+
+  physics_parameters:
+    thermal_cht_time_constant_s: 45.0
+    thermal_egt_time_constant_s: 6.0
+    oil_thermal_time_constant_s: 90.0
+    base_mechanical_efficiency: 0.38
+    stoichiometric_afr: 14.7
+
+  anomaly:
+    weights:
+      physics: 0.40
+      statistical: 0.15
+      ml: 0.30
+      trend: 0.15
+    thresholds:
+      warning: 0.45
+      critical: 0.70
+
+  subsystem_health_weights:
+    combustion: 0.28
+    thermal: 0.25
+    lubrication: 0.22
+    vibration: 0.15
+    electrical: 0.10

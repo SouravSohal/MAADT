@@ -1,0 +1,76 @@
+# ==========================================================
+# MAADT Repository .gitignore (for maadt-app)
+# ==========================================================
+
+# Python Bytecode & Compilation
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Python Virtual Environments
+.venv/
+venv/
+ENV/
+env/
+**/venv/
+**/.venv/
+
+# Testing & Coverage
+.pytest_cache/
+**/.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+.nox/
+
+# SQLite Databases, Local State & Logs
+*.db
+*.sqlite
+*.sqlite3
+*.log
+maadt_data.db
+**/maadt_data.db
+
+# Node.js, Next.js & Electron Builds
+node_modules/
+**/node_modules/
+.next/
+**/.next/
+out/
+**/out/
+.turbo/
+**/.turbo/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+
+# Documents & Presentations (if any copied here)
+*.pptx
+*.pdf
+
+# Operating System & IDE Artifacts
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+*.swp
+*.swo
+*~

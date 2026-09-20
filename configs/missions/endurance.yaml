@@ -1,0 +1,23 @@
+mission:
+  id: "MIS-ENDURANCE-01"
+  name: "8-Hour MALE Reconnaissance & Loiter"
+  description: "Standard long-endurance reconnaissance flight profile with climb, transit, extended loiter, and descent"
+  target_altitude_m: 5500.0   # ~18,000 ft
+  duration_minutes: 480.0     # 8 hours
+  ambient_temperature_c: 28.0
+  ambient_pressure_kpa: 101.3
+  
+  waypoints:
+    # [time_minutes, target_altitude_m, target_throttle_pct, regime]
+    - [0.0, 0.0, 0.0, "START"]
+    - [5.0, 0.0, 30.0, "WARM_UP"]
+    - [10.0, 0.0, 40.0, "TAXI"]
+    - [15.0, 50.0, 100.0, "TAKEOFF"]
+    - [35.0, 3000.0, 85.0, "CLIMB"]
+    - [55.0, 5500.0, 80.0, "CLIMB"]
+    - [90.0, 5500.0, 65.0, "CRUISE"]
+    - [240.0, 5500.0, 60.0, "LOITER"]
+    - [420.0, 5500.0, 60.0, "LOITER"]
+    - [450.0, 1500.0, 45.0, "DESCENT"]
+    - [470.0, 200.0, 40.0, "DESCENT"]
+    - [480.0, 0.0, 20.0, "LANDING"]
