@@ -8,6 +8,7 @@ and interactive mission control copilot assistance.
 import asyncio
 import json
 import logging
+import os
 import time
 from typing import Any, Dict, List, Optional
 import httpx
@@ -20,13 +21,24 @@ class OllamaAIService:
     Service gateway to local Ollama LLMs for aerospace propulsion digital twin inference.
     """
 
-    def __init__(self, base_url: str = "http://localhost:11434", default_model: str = "qwen2.5:3b"):
-        self.base_url = base_url.rstrip("/")
+    def __init__(self, base_url: Optional[str] = None, default_model: str = "qwen2.5:3b"):
+        resolved_url = base_url or os.environ.get("OLLAMA_BASE_URL", "http://localhost:11434")
+        self.base_url = resolved_url.rstrip("/")
         self.active_model = default_model
         self.fallback_models = ["qwen2.5:3b", "mistral:latest", "qwen3:14b", "prakriti-chat:latest"]
 
     async def check_health(self) -> Dict[str, Any]:
-        """Check if local Ollama daemon is running and retrieve installed models."""
+        """Check if local Ollama daemon or Cloud Gemini API is available."""
+        gemini_key = os.environ.get("GEMINI_API_KEY")
+        if gemini_key:
+            model = os.environ.get("GEMINI_MODEL", "gemini-2.5-flash")
+            return {
+                "status": "ONLINE",
+                "active_model": model,
+                "available_models": ["gemini-2.5-flash", "gemini-2.5-pro", "gemini-1.5-flash"],
+                "provider": "Google Cloud Gemini",
+            }
+
         try:
             async with httpx.AsyncClient(timeout=4.0) as client:
                 resp = await client.get(f"{self.base_url}/api/tags")
@@ -55,7 +67,7 @@ class OllamaAIService:
             "active_model": self.active_model,
             "available_models": [],
             "base_url": self.base_url,
-            "error": "Ollama service unreachable at localhost:11434",
+            "error": "Ollama service unreachable and GEMINI_API_KEY not set",
         }
 
     async def set_active_model(self, model_name: str) -> Dict[str, Any]:
@@ -123,12 +135,22 @@ Provide a concise, professional aerospace engineering diagnostic evaluation cove
 Keep formatting crisp with clear headers. Output concise, technical engineering language."""
 
         t0 = time.time()
-        ai_response = await self._call_ollama(prompt, system="You are an expert DRDO aerospace propulsion diagnostic engineer.")
+        ai_response = None
+        used_model = self.active_model
+
+        if os.environ.get("GEMINI_API_KEY"):
+            ai_response = await self._call_gemini(prompt, system="You are an expert DRDO aerospace propulsion diagnostic engineer.")
+            if ai_response:
+                used_model = os.environ.get("GEMINI_MODEL", "gemini-2.5-flash")
+
+        if not ai_response:
+            ai_response = await self._call_ollama(prompt, system="You are an expert DRDO aerospace propulsion diagnostic engineer.")
+
         elapsed = time.time() - t0
 
         return {
             "status": "SUCCESS" if ai_response else "FALLBACK",
-            "model_used": self.active_model,
+            "model_used": used_model,
             "inference_time_seconds": round(elapsed, 2),
             "diagnostic_report": ai_response or self._generate_rule_based_fallback(telemetry, diagnostic_info),
             "analyzed_timestamp": time.time(),
@@ -167,12 +189,22 @@ Answer the pilot / flight engineer's question precisely, using accurate thermody
         messages.append({"role": "user", "content": user_message})
 
         t0 = time.time()
-        response_text = await self._call_ollama_chat(messages, system=system_prompt)
+        response_text = None
+        used_model = self.active_model
+
+        if os.environ.get("GEMINI_API_KEY"):
+            response_text = await self._call_gemini_chat(messages, system=system_prompt)
+            if response_text:
+                used_model = os.environ.get("GEMINI_MODEL", "gemini-2.5-flash")
+
+        if not response_text:
+            response_text = await self._call_ollama_chat(messages, system=system_prompt)
+
         elapsed = time.time() - t0
 
         return {
             "status": "SUCCESS" if response_text else "FALLBACK",
-            "model_used": self.active_model,
+            "model_used": used_model,
             "inference_time_seconds": round(elapsed, 2),
             "reply": response_text or "Digital Twin Copilot offline. Telemetry nominal; all parameters within operating boundaries.",
         }
@@ -223,6 +255,76 @@ Answer the pilot / flight engineer's question precisely, using accurate thermody
                     return msg.get("content", "").strip()
         except Exception as e:
             logger.error(f"Ollama chat call error: {e}")
+        return None
+
+    async def _call_gemini(self, prompt: str, system: Optional[str] = None) -> Optional[str]:
+        """Inference using Google Cloud Gemini API."""
+        gemini_key = os.environ.get("GEMINI_API_KEY")
+        if not gemini_key:
+            return None
+        model = os.environ.get("GEMINI_MODEL", "gemini-2.5-flash")
+        url = f"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent?key={gemini_key}"
+        payload: Dict[str, Any] = {
+            "contents": [
+                {
+                    "role": "user",
+                    "parts": [{"text": prompt}],
+                }
+            ]
+        }
+        if system:
+            payload["systemInstruction"] = {
+                "parts": [{"text": system}]
+            }
+        try:
+            async with httpx.AsyncClient(timeout=20.0) as client:
+                resp = await client.post(url, json=payload)
+                if resp.status_code == 200:
+                    data = resp.json()
+                    candidates = data.get("candidates", [])
+                    if candidates:
+                        parts = candidates[0].get("content", {}).get("parts", [])
+                        if parts:
+                            return parts[0].get("text", "").strip()
+                else:
+                    logger.warning(f"Gemini API returned status {resp.status_code}: {resp.text}")
+        except Exception as e:
+            logger.error(f"Gemini API error: {e}")
+        return None
+
+    async def _call_gemini_chat(self, messages: List[Dict[str, str]], system: Optional[str] = None) -> Optional[str]:
+        """Chat multi-turn inference using Google Cloud Gemini API."""
+        gemini_key = os.environ.get("GEMINI_API_KEY")
+        if not gemini_key:
+            return None
+        model = os.environ.get("GEMINI_MODEL", "gemini-2.5-flash")
+        url = f"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent?key={gemini_key}"
+        gemini_contents = []
+        for m in messages:
+            role = "model" if m.get("role") in ["assistant", "system"] else "user"
+            gemini_contents.append({
+                "role": role,
+                "parts": [{"text": m.get("content", "")}],
+            })
+        payload: Dict[str, Any] = {"contents": gemini_contents}
+        if system:
+            payload["systemInstruction"] = {
+                "parts": [{"text": system}]
+            }
+        try:
+            async with httpx.AsyncClient(timeout=20.0) as client:
+                resp = await client.post(url, json=payload)
+                if resp.status_code == 200:
+                    data = resp.json()
+                    candidates = data.get("candidates", [])
+                    if candidates:
+                        parts = candidates[0].get("content", {}).get("parts", [])
+                        if parts:
+                            return parts[0].get("text", "").strip()
+                else:
+                    logger.warning(f"Gemini chat API returned status {resp.status_code}: {resp.text}")
+        except Exception as e:
+            logger.error(f"Gemini chat API error: {e}")
         return None
 
     def _generate_rule_based_fallback(self, telemetry: Dict[str, Any], diag: Optional[Dict[str, Any]]) -> str:

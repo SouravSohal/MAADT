@@ -6,6 +6,7 @@ Reference: overview.md Section 50.
 """
 
 import json
+import os
 import sqlite3
 from pathlib import Path
 from typing import Any, Dict, List, Optional
@@ -17,7 +18,8 @@ from schemas.telemetry import (
     TelemetryPacket,
 )
 
-DEFAULT_DB_PATH = Path(__file__).resolve().parent.parent / "maadt_data.db"
+_env_db_path = os.environ.get("MAADT_DB_PATH")
+DEFAULT_DB_PATH = Path(_env_db_path) if _env_db_path else (Path(__file__).resolve().parent.parent / "maadt_data.db")
 
 
 class Database:
@@ -25,6 +27,9 @@ class Database:
 
     def __init__(self, db_path: Optional[Path] = None):
         self.db_path = str(db_path or DEFAULT_DB_PATH)
+        parent_dir = os.path.dirname(self.db_path)
+        if parent_dir:
+            os.makedirs(parent_dir, exist_ok=True)
         self._init_db()
 
     def _get_connection(self) -> sqlite3.Connection:

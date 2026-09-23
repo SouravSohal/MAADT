@@ -1,0 +1,41 @@
+# Git
+.git
+.gitignore
+
+# Python Bytecode, Caches & Environments
+**/__pycache__
+**/*.py[cod]
+**/*$py.class
+**/.pytest_cache
+**/.coverage
+**/htmlcov
+**/venv
+**/.venv
+**/ENV
+**/env
+
+# SQLite Databases & Logs
+**/*.db
+**/*.sqlite
+**/*.sqlite3
+**/*.log
+maadt_data.db
+**/maadt_data.db
+
+# Node.js, Next.js & Electron
+**/node_modules
+**/.next
+**/out
+**/.turbo
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+desktop/
+
+# OS & Editor
+.DS_Store
+Thumbs.db
+.vscode
+.idea
+*.swp
+*.swo

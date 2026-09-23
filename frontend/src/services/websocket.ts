@@ -43,7 +43,18 @@ export class TelemetryService {
     if (typeof window === "undefined") return;
 
     try {
-      this.ws = new WebSocket("ws://localhost:8000/ws/telemetry");
+      let defaultWsUrl = "ws://localhost:8000/ws/telemetry";
+      if (typeof window !== "undefined") {
+        const protocol = window.location.protocol === "https:" ? "wss:" : "ws:";
+        const port = window.location.port;
+        if (port === "3000" || port === "3001") {
+          defaultWsUrl = `${protocol}//${window.location.hostname}:8000/ws/telemetry`;
+        } else {
+          defaultWsUrl = `${protocol}//${window.location.host}/ws/telemetry`;
+        }
+      }
+      const wsUrl = process.env.NEXT_PUBLIC_WS_URL || defaultWsUrl;
+      this.ws = new WebSocket(wsUrl);
 
       this.ws.onopen = () => {
         this.isConnected = true;

@@ -10,14 +10,24 @@ import yaml
 
 from .engine_config import EngineConfig, MissionConfig
 
-CONFIG_DIR = Path(__file__).resolve().parent.parent.parent / "configs"
+_env_config_dir = os.environ.get("MAADT_CONFIG_DIR")
+if _env_config_dir:
+    CONFIG_DIR = Path(_env_config_dir)
+else:
+    candidate = Path(__file__).resolve().parent.parent.parent / "configs"
+    CONFIG_DIR = candidate if candidate.exists() else Path("/app/configs")
 
 
 class ConfigManager:
     """Manages loaded engine, mission, and scenario configurations."""
     
     def __init__(self, config_dir: Optional[Path] = None):
-        self.config_dir = config_dir or CONFIG_DIR
+        if config_dir is not None:
+            self.config_dir = config_dir
+        elif "MAADT_CONFIG_DIR" in os.environ:
+            self.config_dir = Path(os.environ["MAADT_CONFIG_DIR"])
+        else:
+            self.config_dir = CONFIG_DIR
         self._engines: Dict[str, EngineConfig] = {}
         self._missions: Dict[str, MissionConfig] = {}
         self.reload_all()

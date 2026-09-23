@@ -2,7 +2,21 @@ import { TelemetryPacket } from "../types/telemetry";
 import { CounterfactualBranch } from "../types/mission";
 import { BASELINE_TELEMETRY, DEFAULT_BRANCHES } from "../data/mockTelemetry";
 
-const API_BASE_URL = "http://localhost:8000";
+const getApiBaseUrl = (): string => {
+  if (process.env.NEXT_PUBLIC_API_URL) {
+    return process.env.NEXT_PUBLIC_API_URL.replace(/\/$/, "");
+  }
+  if (typeof window !== "undefined") {
+    const port = window.location.port;
+    if (port === "3000" || port === "3001") {
+      return `${window.location.protocol}//${window.location.hostname}:8000`;
+    }
+    return window.location.origin;
+  }
+  return "http://localhost:8000";
+};
+
+const API_BASE_URL = getApiBaseUrl();
 
 export const apiService = {
   async getSystemStatus() {

@@ -1,0 +1,56 @@
+apiVersion: serving.knative.dev/v1
+kind: Service
+metadata:
+  name: maadt
+  labels:
+    cloud.googleapis.com/location: us-central1
+  annotations:
+    run.googleapis.com/ingress: all
+    run.googleapis.com/description: "MAADT Mission-Aware Adaptive Digital Twin (FastAPI + Next.js HUD)"
+spec:
+  template:
+    metadata:
+      annotations:
+        # Autoscaling: max-instances: 1 preserves single-twin EKF state continuity
+        autoscaling.knative.dev/maxScale: '1'
+        autoscaling.knative.dev/minScale: '0'
+        # 3600s session timeout for high-frequency 10 Hz WebSocket streaming
+        run.googleapis.com/execution-environment: gen2
+    spec:
+      containerConcurrency: 80
+      timeoutSeconds: 3600
+      containers:
+        - image: us-central1-docker.pkg.dev/maadt-509407/maadt-repo/maadt:latest
+          ports:
+            - name: http1
+              containerPort: 8080
+          resources:
+            limits:
+              cpu: "2"
+              memory: "2Gi"
+          env:
+            - name: MAADT_CONFIG_DIR
+              value: "/app/configs"
+            - name: MAADT_DB_PATH
+              value: "/app/data/maadt_data.db"
+            - name: GEMINI_MODEL
+              value: "gemini-2.5-flash"
+            # Optional: Map GEMINI_API_KEY from Google Secret Manager or plain value
+            # - name: GEMINI_API_KEY
+            #   valueFrom:
+            #     secretKeyRef:
+            #       name: gemini-api-key
+            #       key: latest
+          startupProbe:
+            httpGet:
+              path: /api/v1/system/status
+              port: 8080
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            failureThreshold: 12
+          livenessProbe:
+            httpGet:
+              path: /api/v1/system/status
+              port: 8080
+            periodSeconds: 20
+            failureThreshold: 3

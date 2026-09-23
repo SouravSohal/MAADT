@@ -1,8 +1,32 @@
 # ==========================================================
-# MAADT Repository .gitignore (for maadt-app)
+# MAADT Repository .gitignore
+# Physics-Informed Digital Twin & AI Prognostics Platform
 # ==========================================================
 
-# Python Bytecode & Compilation
+# ----------------------------------------------------------
+# Environment Variables & Sensitive Credentials
+# ----------------------------------------------------------
+.env
+.env.*
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+!.env.example
+
+# Secrets, Certificates & Cloud Service Account Keys
+*.pem
+*.key
+*.crt
+*service-account*.json
+*credentials*.json
+*client_secret*.json
+gcp-key.json
+sa-key.json
+
+# ----------------------------------------------------------
+# Python Bytecode, Compilations & Builds
+# ----------------------------------------------------------
 __pycache__/
 *.py[cod]
 *$py.class
@@ -32,23 +56,35 @@ env/
 **/venv/
 **/.venv/
 
-# Testing & Coverage
+# Testing, Linters & Static Analysis
 .pytest_cache/
 **/.pytest_cache/
 .coverage
 htmlcov/
 .tox/
 .nox/
+.mypy_cache/
+**/.mypy_cache/
+.ruff_cache/
+**/.ruff_cache/
+.hypothesis/
 
-# SQLite Databases, Local State & Logs
+# ----------------------------------------------------------
+# SQLite Databases, State Stores & Data Volumes
+# ----------------------------------------------------------
 *.db
 *.sqlite
 *.sqlite3
 *.log
 maadt_data.db
 **/maadt_data.db
+data/
+**/data/
+*.pid
 
-# Node.js, Next.js & Electron Builds
+# ----------------------------------------------------------
+# Node.js, Next.js & Frontend Builds
+# ----------------------------------------------------------
 node_modules/
 **/node_modules/
 .next/
@@ -57,20 +93,46 @@ out/
 **/out/
 .turbo/
 **/.turbo/
+.vercel
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 .pnpm-debug.log*
+.eslintcache
+*.tsbuildinfo
 
-# Documents & Presentations (if any copied here)
+# ----------------------------------------------------------
+# Desktop / Electron Packaging Artifacts
+# ----------------------------------------------------------
+desktop/dist/
+desktop/build/
+
+# ----------------------------------------------------------
+# Documents & Large Binaries
+# ----------------------------------------------------------
 *.pptx
 *.pdf
+*.zip
+*.tar.gz
+*.tgz
 
+# ----------------------------------------------------------
 # Operating System & IDE Artifacts
+# ----------------------------------------------------------
 .DS_Store
+**/.DS_Store
 Thumbs.db
+**/Thumbs.db
+ehthumbs.db
+Desktop.ini
+.Spotlight-V100
+.Trashes
 .vscode/
+**/.vscode/
 .idea/
+**/.idea/
 *.swp
 *.swo
 *~
+*.bak
+*.tmp

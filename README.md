@@ -169,7 +169,44 @@ MAADT eliminates this vulnerability by running an **active, physics-informed com
 
 ---
 
-### 5.2 Quick Start (One-Click Launcher)
+### 5.2 Docker Quick Start (Recommended)
+
+Run the entire MAADT platform (FastAPI Backend + Next.js HUD) with Docker Compose:
+
+```bash
+# 1. (Optional) Copy sample environment variables
+cp .env.example .env
+
+# 2. Build and start all services in detached mode
+docker compose up --build -d
+
+# 3. View live unified logs
+docker compose logs -f
+```
+
+* **Frontend Operator HUD**: [`http://localhost:3000`](http://localhost:3000)
+* **Core Intelligence API**: [`http://localhost:8000`](http://localhost:8000)
+* **Interactive API Docs**: [`http://localhost:8000/docs`](http://localhost:8000/docs)
+
+#### Key Docker Features:
+* **Micro-Footprint Multi-Stage Builds**: Lean images (Frontend: ~73 MB using Next.js standalone tracing; Backend: ~162 MB).
+* **State Persistence**: SQLite telemetry database is persisted in a named Docker volume (`maadt_data`).
+* **Live Configuration Mount**: `./configs` is mounted to `/app/configs:ro` so engine and mission YAMLs can be modified on the host without rebuilding.
+* **Host Ollama Bridge**: Built-in `host.docker.internal` bridge connects seamlessly to your host machine's Ollama instance.
+* **Containerized Ollama (Optional)**: If Ollama is not installed locally, launch it inside Docker:
+  ```bash
+  docker compose --profile ollama up -d
+  docker compose exec ollama ollama pull qwen2.5:3b
+  ```
+
+To stop containers:
+```bash
+docker compose down
+```
+
+---
+
+### 5.3 Local Script Launcher (One-Click)
 
 From the project root:
 
@@ -184,7 +221,7 @@ This script:
 
 ---
 
-### 5.3 Manual Setup
+### 5.4 Manual Setup
 
 #### Step 1: Backend Setup
 ```bash
